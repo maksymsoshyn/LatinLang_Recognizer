@@ -13,8 +13,9 @@ public class Trainer {
         }
     }
 
+    //configuring new perceptrons and add them to map
     private void initializePerceptronsLangMap(){
-        float threshold = 5;
+        float threshold = langLetterUsing.keySet().size();
         for(String lang : langLetterUsing.keySet()){
             Perceptron langPerceptron = new Perceptron();
             float[] weights = langLetterUsing.get(lang);
@@ -46,7 +47,7 @@ public class Trainer {
                 }
             }
         }
-        if(rightBehaveTime/vecNum<1f)//check if accuracy is acceptable
+        if(rightBehaveTime/vecNum<1f)//check if accuracy is acceptable(perceptron should activate himself only for his language)
             trainPerceptron(perceptron, perceptronLang, trainData);
     }
 
@@ -54,6 +55,7 @@ public class Trainer {
         int testDataSize = testData.size();
         classificationMatrix = new int[testDataSize][testDataSize];
         int langIndex=0;
+        //go through avg letter using of particular files of particular languages
         for(String lang : testData.keySet()){
             float[][] vectors = testData.get(lang);
             for(int i = 0; i<vectors.length; i++)
@@ -98,7 +100,7 @@ public class Trainer {
         return perceptronWithHighestThreshold;
     }
 
-    public void printClassMatrix(){
+    public void printClassificationMatrix(){
         Set<Perceptron> langSet = langPerceptrons.keySet();
         Iterator<Perceptron> langSetIter=langSet.iterator();
         String firstLang = langPerceptrons.get(langSetIter.next());

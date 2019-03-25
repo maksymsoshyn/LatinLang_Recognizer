@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
@@ -19,7 +20,8 @@ public class TextAnalyzer extends SimpleFileVisitor<Path> {
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
         if(!dir.getFileName().toString().equals("Training")) {
             numSymb = 0f;
-            lettersInFile = new float[5][26];//columns=number of files rows=number of latins letter
+            lettersInFile = new float[Objects.requireNonNull(new File(String.valueOf(dir)).listFiles()).length][26];//columns=number of files rows=number of latins letter
+            //here we store name of language as key and two-dimensional array for number of each language in every file of languagedirectory
             avgLettersInFiles.put(dir.getFileName().toString(), lettersInFile);
         }if(dir.getFileName().toString().equals("Test")){
             avgLettersOfLang = new TreeMap<>();
@@ -57,6 +59,7 @@ public class TextAnalyzer extends SimpleFileVisitor<Path> {
             float[] avgOfLetter = computeAvgUsageOfLettersInLang(lettersInFile);//computing overall avager(need for weight vector)
             avgLettersOfLang.put(dir.getFileName().toString(), avgOfLetter);
             computeAvgUsageOfLettersInFile(lettersInFile);//finding avg frequency vector in separate files
+            //No need to store lettersInFile Array in Map again because we did that in preVisitDirectory method
             currentFileIndex=0;
         }
         return FileVisitResult.CONTINUE;
@@ -64,7 +67,7 @@ public class TextAnalyzer extends SimpleFileVisitor<Path> {
 
     //initialize map with a-z chars as key
     private void prepareLetterMap(Map<Character, Integer> numberOfLetters) {
-        for (int i = 97; i <= 122; i++)
+        for (int i = 97; i <= 122; i++)//initialize map of char with ascii a-z keys
             numberOfLetters.put((char) (i), 0);
     }
 
@@ -76,9 +79,9 @@ public class TextAnalyzer extends SimpleFileVisitor<Path> {
         return avgLettersInFiles;
     }
 
+    //this method for overall avg in language file(used for setting initial weight vector of perceptrons)
     public float[] computeAvgUsageOfLettersInLang(float[][] filesChars) {
         float[] avgOfLetter = new float[26];
-
         for (int i = 0; i < 26; i++) { //computing avg by columns
             float sumChar = 0;
             for (int j = 0; j < filesChars.length; j++)
@@ -88,6 +91,7 @@ public class TextAnalyzer extends SimpleFileVisitor<Path> {
         return avgOfLetter;
     }
 
+    //compute
     public void computeAvgUsageOfLettersInFile(float[][] lettersInFile) {
         for (int i = 0; i < lettersInFile.length; i++) {
             float sumCharsInFile = 0;

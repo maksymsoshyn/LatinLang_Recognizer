@@ -21,6 +21,7 @@ public class Perceptron {
     }
 
 
+    //decide whether should perceptron be activated or not
     public int outFunction(float[] inputVector){
         float net = findNet(inputVector);
         if(net>=threshold)
@@ -29,6 +30,7 @@ public class Perceptron {
             return 0;
     }
 
+    //Net - scalar product of inputVector and weightVector
     public float findNet(float[] inputVector){
         float net = 0f;
         for (int i = 0; i < inputVector.length; i++)

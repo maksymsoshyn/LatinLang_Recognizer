@@ -9,7 +9,7 @@ public class Main {
         Trainer trainer = new Trainer(textAnalyzer.getAvgLettersOfLangs(), textAnalyzer.getAvgLettersInLangFiles());
         Files.walkFileTree(Paths.get("src/Test"), textAnalyzer);
         trainer.startNeuralTest(textAnalyzer.getAvgLettersInLangFiles());
-        trainer.printClassMatrix();
+        trainer.printClassificationMatrix();
         trainer.printInfo();
     }
 }
