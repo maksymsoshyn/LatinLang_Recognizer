@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Trainer {
+class Trainer {
     private Map<Perceptron, String> langPerceptrons = new LinkedHashMap<>();
     private Map<String, float[]> langLetterUsing;
     private int[][] classificationMatrix;
@@ -73,7 +73,7 @@ public class Trainer {
             int out = perceptron.outFunction(inputVector);
             if (out == 1)
                 if(activated!=null){
-                    if(perceptron.findNet(inputVector)-perceptron.getThreshold()<activated.findNet(inputVector)-activated.getThreshold()){
+                    if(perceptron.findNet(inputVector)>activated.findNet(inputVector)){
                         indexOfClassification=iterationIdx;
                         activated=perceptron;
                     }
@@ -186,7 +186,7 @@ public class Trainer {
         return(2*p*r)/(p+r);
     }
 
-    public String classifyVector(float[] inputVector){
+    String classifyVector(float[] inputVector){
         Perceptron activated = null;
         for(Perceptron perceptron : langPerceptrons.keySet()){
             float out = perceptron.outFunction(inputVector);
@@ -194,9 +194,7 @@ public class Trainer {
                 if(activated==null)
                     activated=perceptron;
                 else{
-                    float actSubtraction=activated.findNet(inputVector)-activated.getThreshold();
-                    float contendSubtraction=perceptron.findNet(inputVector)-perceptron.getThreshold();
-                    if(actSubtraction>contendSubtraction)
+                    if(activated.findNet(inputVector)>perceptron.findNet(inputVector))
                         activated=perceptron;
                 }
             }
