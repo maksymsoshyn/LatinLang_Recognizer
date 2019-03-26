@@ -41,6 +41,6 @@ public class Perceptron {
     //using Delta rule here
     public void changeWeights(float[] inputVector, int expectedOutput, int realOtput){
             for (int i = 0; i < weights.length; i++)
-                weights[i] = weights[i] + (expectedOutput - realOtput) * inputVector[i];
+                weights[i] = weights[i] + 0.1f*(expectedOutput - realOtput) * inputVector[i];
     }
 }

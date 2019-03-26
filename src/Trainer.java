@@ -15,7 +15,7 @@ public class Trainer {
 
     //configuring new perceptrons and add them to map
     private void initializePerceptronsLangMap(){
-        float threshold = langLetterUsing.keySet().size();
+        float threshold = langLetterUsing.size();
         for(String lang : langLetterUsing.keySet()){
             Perceptron langPerceptron = new Perceptron();
             float[] weights = langLetterUsing.get(lang);
@@ -32,18 +32,18 @@ public class Trainer {
         for(String lang : trainData.keySet()){//going through frequency vectors of files
             float[][] langVectors=trainData.get(lang);
             vecNum+=langVectors.length;
-            for(int i=0; i<langVectors.length; i++){
-                int output = perceptron.outFunction(langVectors[i]);
-                if(output==1) {
+            for (float[] langVector : langVectors) {
+                int output = perceptron.outFunction(langVector);
+                if (output == 1) {
                     if (perceptronLang.equals(lang))//activated and should
                         rightBehaveTime++;
                     else//activated but shouldnt
-                        perceptron.changeWeights(langVectors[i], 0, 1);
-                }else if(output==0){
-                    if(!perceptronLang.equals(lang))//unactivated and shouldn't
+                        perceptron.changeWeights(langVector, 0, 1);
+                } else if (output == 0) {
+                    if (!perceptronLang.equals(lang))//unactivated and shouldn't
                         rightBehaveTime++;
                     else//unactivated but should
-                        perceptron.changeWeights(langVectors[i], 1, 0);
+                        perceptron.changeWeights(langVector, 1, 0);
                 }
             }
         }
@@ -51,37 +51,36 @@ public class Trainer {
             trainPerceptron(perceptron, perceptronLang, trainData);
     }
 
-    public void startNeuralTest(Map<String, float[][]> testData){
+    void startNeuralTest(Map<String, float[][]> testData){
         int testDataSize = testData.size();
         classificationMatrix = new int[testDataSize][testDataSize];
         int langIndex=0;
         //go through avg letter using of particular files of particular languages
         for(String lang : testData.keySet()){
             float[][] vectors = testData.get(lang);
-            for(int i = 0; i<vectors.length; i++)
-                classifyVector(vectors[i], classificationMatrix, langIndex);
+            for (float[] vector : vectors) {
+                classifyVector(vector, langIndex);
+            }
             langIndex++;
         }
     }
 
-    private void classifyVector(float[] inputVector, int[][] classificationMatrix, int indexOfLang){
+    private void classifyVector(float[] inputVector, int indexOfLang){
         int iterationIdx=0;
         int indexOfClassification = 0;
         Perceptron activated = null;
-        boolean atLeastOneActivated=false;
         for(Perceptron perceptron: langPerceptrons.keySet()) {
             int out = perceptron.outFunction(inputVector);
             if (out == 1)
-                if(atLeastOneActivated){
-                    if(perceptron.findNet(inputVector)-perceptron.getThreshold()>activated.findNet(inputVector)-activated.getThreshold()){
+                if(activated!=null){
+                    if(perceptron.findNet(inputVector)-perceptron.getThreshold()<activated.findNet(inputVector)-activated.getThreshold()){
                         indexOfClassification=iterationIdx;
                         activated=perceptron;
                     }
                 }else {
-                    atLeastOneActivated = true;
                     activated=perceptron;
                 }
-            if(!atLeastOneActivated&&indexOfClassification<classificationMatrix.length-1)
+            if(activated==null&&indexOfClassification<classificationMatrix.length-1)
                 indexOfClassification++;
             iterationIdx++;
         }
@@ -100,7 +99,7 @@ public class Trainer {
         return perceptronWithHighestThreshold;
     }
 
-    public void printClassificationMatrix(){
+    void printClassificationMatrix(){
         Set<Perceptron> langSet = langPerceptrons.keySet();
         Iterator<Perceptron> langSetIter=langSet.iterator();
         String firstLang = langPerceptrons.get(langSetIter.next());
@@ -111,35 +110,34 @@ public class Trainer {
             System.out.print(" "+langPerceptrons.get(langSetIter.next()));
         System.out.println();
         langSetIter=langSet.iterator();
-        for(int i = 0; i<classificationMatrix.length; i++){
+        for (int[] classificationMatrix1 : classificationMatrix) {
             System.out.print(langPerceptrons.get(langSetIter.next()));
-            for(int j = 0; j<classificationMatrix[i].length; j++)
-                System.out.print(" "+classificationMatrix[i][j]);
+            for (int i : classificationMatrix1)
+                System.out.print(" " + i);
             System.out.println();
         }
         System.out.println();
     }
 
-    public void printInfo(){
+    void printInfo(){
         System.out.println("Accuracy: "+findAccuracy());
         float[] precisions=findPrecisions();
         float[] recalls=findRecalls();
         int currentIndex=0;
         Set<Perceptron> langSet = langPerceptrons.keySet();
-        Iterator<Perceptron> langSetIter=langSet.iterator();
-        while(langSetIter.hasNext()){
-            String lang = langPerceptrons.get(langSetIter.next());
-            System.out.println(lang+": ");
-            System.out.println("Precision: "+precisions[currentIndex]);
-            System.out.println("Recall: "+ recalls[currentIndex]);
-            System.out.println("F-measure: "+fMeasure(precisions[currentIndex], recalls[currentIndex]));
+        for (Perceptron perceptron : langSet) {
+            String lang = langPerceptrons.get(perceptron);
+            System.out.println(lang + ": ");
+            System.out.println("Precision: " + precisions[currentIndex]);
+            System.out.println("Recall: " + recalls[currentIndex]);
+            System.out.println("F-measure: " + fMeasure(precisions[currentIndex], recalls[currentIndex]));
             System.out.println();
             currentIndex++;
         }
 
     }
 
-    public float findAccuracy(){
+    private float findAccuracy(){
         float numberOfThruth=0f;
         float overall = 0f;
         for(int i = 0; i<classificationMatrix.length; i++){
@@ -151,13 +149,13 @@ public class Trainer {
         return (numberOfThruth/overall);
     }
 
-    public float[] findPrecisions(){
+    private float[] findPrecisions(){
         float[] precisions=new float[classificationMatrix.length];
         for(int i=0;i<classificationMatrix.length;i++){
             float factClassified=classificationMatrix[i][i];
             float overallClassified=0;
-            for(int j=0; j<classificationMatrix.length; j++){
-                overallClassified+=classificationMatrix[j][i];
+            for (int[] classificationMatrix1 : classificationMatrix) {
+                overallClassified += classificationMatrix1[i];
             }
             if(overallClassified==0)
                 precisions[i]=0;
@@ -167,7 +165,7 @@ public class Trainer {
         return precisions;
     }
 
-    public float[] findRecalls(){
+    private float[] findRecalls(){
         float[] recalls = new float[classificationMatrix.length];
         for(int i=0;i<classificationMatrix.length;i++){
             float trueClassified=classificationMatrix[i][i];
@@ -182,9 +180,28 @@ public class Trainer {
         return recalls;
     }
 
-    public float fMeasure(float p, float r){
+    private float fMeasure(float p, float r){
         if(p==0||r==0)
             return 0;
         return(2*p*r)/(p+r);
+    }
+
+    public String classifyVector(float[] inputVector){
+        Perceptron activated = null;
+        for(Perceptron perceptron : langPerceptrons.keySet()){
+            float out = perceptron.outFunction(inputVector);
+            if(out==1){
+                if(activated==null)
+                    activated=perceptron;
+                else{
+                    float actSubtraction=activated.findNet(inputVector)-activated.getThreshold();
+                    float contendSubtraction=perceptron.findNet(inputVector)-perceptron.getThreshold();
+                    if(actSubtraction>contendSubtraction)
+                        activated=perceptron;
+                }
+            }
+        }
+
+        return langPerceptrons.get(activated);
     }
 }
