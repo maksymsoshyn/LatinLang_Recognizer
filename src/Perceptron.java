@@ -1,44 +1,46 @@
 
 
 public class Perceptron {
-    private double[] weights;
-    private double threshold;
+    private float[] weights=new float[26];
+    private float threshold;
 
-    public double[] getWeights() {
+    public float[] getWeights() {
         return weights;
     }
 
-    public void setWeights(double[] weights) {
+    public void setWeights(float[] weights) {
         this.weights = weights;
     }
 
-    public double getThreshold() {
+    public float getThreshold() {
         return threshold;
     }
 
-    public void setThreshold(double threshold) {
+    public void setThreshold(float threshold) {
         this.threshold = threshold;
     }
 
 
-    public double outFunction(double[] inputVector) throws Exception {
-        return findNet(inputVector)-threshold;
-
+    //decide whether should perceptron be activated or not
+    public int outFunction(float[] inputVector){
+        float net = findNet(inputVector);
+        if(net>=threshold)
+            return 1;
+        else
+            return 0;
     }
 
-    public double findNet(double[] inputVector){
-        double net = 0.0;
+    //Net - scalar product of inputVector and weightVector
+    public float findNet(float[] inputVector){
+        float net = 0f;
         for (int i = 0; i < inputVector.length; i++)
             net += weights[i] * inputVector[i];
         return net;
     }
 
     //using Delta rule here
-    public void changeWeights(double[] inputVector, int expectedOutput, int realOtput) throws Exception {
-        if (inputVector.length == weights.length) {
+    public void changeWeights(float[] inputVector, int expectedOutput, int realOtput){
             for (int i = 0; i < weights.length; i++)
-                weights[i] = weights[i] + (expectedOutput - realOtput) * inputVector[i];
-        } else
-            throw new Exception("dimension of input vector!=dimension of weights vector");
+                weights[i] = weights[i] + 0.1f*(expectedOutput - realOtput) * inputVector[i];
     }
 }
