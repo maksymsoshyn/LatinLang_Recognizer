@@ -19,7 +19,7 @@ public class Main {
     private static void processInput(Trainer perceptronTrainer, TextAnalyzer analyzer){
         while(true){
             System.out.println("Enter word in known language");
-            System.out.println(perceptronTrainer.classifyVector(analyzer.analizeString(userIn.nextLine())));
+            System.out.println(perceptronTrainer.classifyDedicatedVector(analyzer.analizeString(userIn.nextLine())));
         }
     }
 }

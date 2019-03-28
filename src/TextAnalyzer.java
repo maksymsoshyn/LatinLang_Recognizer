@@ -17,7 +17,7 @@ public class TextAnalyzer extends SimpleFileVisitor<Path> {
 
 
     @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
         if(!dir.getFileName().toString().equals("Training")) {
             numSymb = 0f;
             lettersInFile = new float[Objects.requireNonNull(new File(String.valueOf(dir)).listFiles()).length][26];//columns=number of files rows=number of latins letter
@@ -54,7 +54,7 @@ public class TextAnalyzer extends SimpleFileVisitor<Path> {
     }
 
     @Override
-    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
         if (!dir.getFileName().toString().equals("Training")) {
             float[] avgOfLetter = computeAvgUsageOfLettersInLang(lettersInFile);//computing overall avager(need for weight vector)
             avgLettersOfLang.put(dir.getFileName().toString(), avgOfLetter);
